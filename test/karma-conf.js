@@ -661,6 +661,9 @@ module.exports = function (config) {
         };
         options.browserDisconnectTimeout = 30 * 60 * 1000;
         options.browserNoActivityTimeout = 30 * 60 * 1000;
+    } else {
+        options.browserDisconnectTimeout = 30 * 1000; // default: 2s
+        options.browserNoActivityTimeout = 40 * 1000; // default: 10s
     }
 
     config.set(options);
