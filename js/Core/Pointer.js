@@ -439,7 +439,7 @@ var Pointer = /** @class */ (function () {
             var noSharedTooltip = s.noSharedTooltip && shared, compareX = (!noSharedTooltip &&
                 s.options.findNearestPointBy.indexOf('y') < 0), point = s.searchPoint(e, compareX);
             if ( // Check that we actually found a point on the series.
-            isObject(point, true) &&
+            isObject(point, true) && point.series &&
                 // Use the new point if it is closer.
                 (!isObject(closest, true) ||
                     (sort(closest, point) > 0))) {
@@ -874,7 +874,7 @@ var Pointer = /** @class */ (function () {
         if (!pEvt.preventDefault) {
             pEvt.returnValue = false;
         }
-        if (chart.mouseIsDown === 'mousedown') {
+        if (chart.mouseIsDown === 'mousedown' || this.touchSelect(pEvt)) {
             this.drag(pEvt);
         }
         // Show the tooltip and run mouse over events (#977)
@@ -906,7 +906,12 @@ var Pointer = /** @class */ (function () {
      * @return {void}
      */
     Pointer.prototype.onContainerTouchMove = function (e) {
-        this.touch(e);
+        if (this.touchSelect(e)) {
+            this.onContainerMouseMove(e);
+        }
+        else {
+            this.touch(e);
+        }
     };
     /**
      * @private
@@ -917,8 +922,13 @@ var Pointer = /** @class */ (function () {
      * @return {void}
      */
     Pointer.prototype.onContainerTouchStart = function (e) {
-        this.zoomOption(e);
-        this.touch(e, true);
+        if (this.touchSelect(e)) {
+            this.onContainerMouseDown(e);
+        }
+        else {
+            this.zoomOption(e);
+            this.touch(e, true);
+        }
     };
     /**
      * Special handler for mouse move that will hide the tooltip when the mouse
@@ -1381,6 +1391,7 @@ var Pointer = /** @class */ (function () {
      * @function Highcharts.Pointer#setDOMEvents
      */
     Pointer.prototype.setDOMEvents = function () {
+        var _this = this;
         var container = this.chart.container, ownerDoc = container.ownerDocument;
         container.onmousedown = this.onContainerMouseDown.bind(this);
         container.onmousemove = this.onContainerMouseMove.bind(this);
@@ -1389,6 +1400,15 @@ var Pointer = /** @class */ (function () {
         this.unbindContainerMouseLeave = addEvent(container, 'mouseleave', this.onContainerMouseLeave.bind(this));
         if (!H.unbindDocumentMouseUp) {
             H.unbindDocumentMouseUp = addEvent(ownerDoc, 'mouseup', this.onDocumentMouseUp.bind(this));
+        }
+        // In case we are dealing with overflow, reset the chart position when
+        // scrolling parent elements
+        var parent = this.chart.renderTo.parentElement;
+        while (parent && parent.tagName !== 'BODY') {
+            addEvent(parent, 'scroll', function () {
+                delete _this.chartPosition;
+            });
+            parent = parent.parentElement;
         }
         if (H.hasTouch) {
             addEvent(container, 'touchstart', this.onContainerTouchStart.bind(this), { passive: false });
@@ -1458,6 +1478,17 @@ var Pointer = /** @class */ (function () {
         else if (e.touches.length === 2) {
             this.pinch(e);
         }
+    };
+    /**
+     * Returns true if the chart is set up for zooming by single touch and the
+     * event is capable
+     * @param {PointEvent} e
+     *        Event object
+     */
+    Pointer.prototype.touchSelect = function (e) {
+        return Boolean(this.chart.options.chart.zoomBySingleTouch &&
+            e.touches &&
+            e.touches.length === 1);
     };
     /**
      * Resolve the zoomType option, this is reset on all touch start and mouse

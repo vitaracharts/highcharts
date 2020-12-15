@@ -83,8 +83,8 @@ declare global {
                 seconds?: number
             ): number;
             public resolveDTLFormat<T>(
-                f: (string|Array<T>|Dictionary<T>)
-            ): Dictionary<T>;
+                f: (string|Array<T>|Record<string, T>)
+            ): Record<string, T>;
             public set(unit: TimeUnitValue, date: Date, value: number): (number|undefined);
             public timezoneOffsetFunction(): Time['getTimezoneOffset']
             public update(options: TimeOptions): void;
@@ -699,8 +699,8 @@ class Time {
      * @return {Highcharts.Dictionary<T>} - The object definition
      */
     public resolveDTLFormat<T>(
-        f: (string|Array<T>|Highcharts.Dictionary<T>)
-    ): Highcharts.Dictionary<T> {
+        f: (string|Array<T>|Record<string, T>)
+    ): Record<string, T> {
         if (!isObject(f, true)) { // check for string or array
             f = splat(f);
             return {
@@ -742,7 +742,7 @@ class Time {
             Date = time.Date,
             tickPositions = [] as Highcharts.AxisTickPositionsArray,
             i,
-            higherRanks = {} as Highcharts.Dictionary<string>,
+            higherRanks = {} as Record<string, string>,
             minYear: any, // used in months and years as a basis for Date.UTC()
             // When crossing DST, use the max. Resolves #6278.
             minDate = new Date(min as any),
@@ -835,10 +835,10 @@ class Time {
                     minDate,
                     (
                         time.get('Date', minDate) -
-                        minDay + (startOfWeek as any) +
+                        minDay + startOfWeek +
                         // We don't want to skip days that are before
                         // startOfWeek (#7051)
-                        (minDay < (startOfWeek as any) ? -7 : 0)
+                        (minDay < startOfWeek ? -7 : 0)
                     )
                 );
             }
@@ -854,8 +854,7 @@ class Time {
             min = minDate.getTime();
 
             // Handle local timezone offset
-            if (time.variableTimezone || !time.useUTC) {
-
+            if ((time.variableTimezone || !time.useUTC) && defined(max)) {
                 // Detect whether we need to take the DST crossover into
                 // consideration. If we're crossing over DST, the day length may
                 // be 23h or 25h and we need to compute the exact clock time for
@@ -863,11 +862,11 @@ class Time {
                 // so first we find out if it is needed (#4951).
                 variableDayLength = (
                     // Long range, assume we're crossing over.
-                    (max as any) - min > 4 * timeUnits.month ||
+                    max - min > 4 * timeUnits.month ||
                     // Short range, check if min and max are in different time
                     // zones.
                     time.getTimezoneOffset(min) !==
-                    time.getTimezoneOffset(max as any)
+                    time.getTimezoneOffset(max)
                 );
             }
 

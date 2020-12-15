@@ -6,7 +6,7 @@
 
 'use strict';
 
-import type AnimationOptionsObject from '../Core/Animation/AnimationOptionsObject';
+import type AnimationOptions from '../Core/Animation/AnimationOptions';
 import type PointOptions from '../Core/Series/PointOptions';
 import type SeriesOptions from '../Core/Series/SeriesOptions';
 import H from '../Core/Globals.js';
@@ -46,7 +46,7 @@ declare global {
                 this: NodesSeries,
                 data: Array<NodesPointOptions>,
                 redraw?: boolean,
-                animation?: (boolean|Partial<AnimationOptionsObject>),
+                animation?: (boolean|Partial<AnimationOptions>),
                 updatePoints?: boolean
             ): void;
             setNodeState(this: NodesPoint, state: string): void;
@@ -89,7 +89,7 @@ declare global {
             public createNode: NodesMixin['createNode'];
             public data: Array<NodesPoint>;
             public generatePoints: NodesMixin['generatePoints'];
-            public nodeLookup: Dictionary<NodesPoint>;
+            public nodeLookup: Record<string, NodesPoint>;
             public nodes: Array<NodesPoint>;
             public options: NodesSeriesOptions;
             public pointClass: typeof NodesPoint;
@@ -222,7 +222,7 @@ const NodesMixin = H.NodesMixin = {
      */
     generatePoints: function (this: Highcharts.NodesSeries): void {
         var chart = this.chart,
-            nodeLookup = {} as Highcharts.Dictionary<Highcharts.NodesPoint>;
+            nodeLookup = {} as Record<string, Highcharts.NodesPoint>;
 
         LineSeries.prototype.generatePoints.call(this);
 

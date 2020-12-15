@@ -16,7 +16,7 @@
  *
  * */
 
-import type AnimationOptionsObject from '../../Animation/AnimationOptionsObject';
+import type AnimationOptions from '../../Animation/AnimationOptions';
 import type BBoxObject from '../BBoxObject';
 import type ColorString from '../../Color/ColorString';
 import type CSSObject from '../CSSObject';
@@ -120,16 +120,16 @@ declare global {
             public allowHTML?: boolean;
             public box: SVGDOMElement;
             public boxWrapper: SVGElement;
-            public cache: Dictionary<BBoxObject>;
+            public cache: Record<string, BBoxObject>;
             public cacheKeys: Array<string>;
             public chartIndex: number;
             public defs: SVGElement;
             /** @deprecated */
             public draw: Function;
-            public escapes: Dictionary<string>;
+            public escapes: Record<string, string>;
             public forExport?: boolean;
-            public globalAnimation: Partial<AnimationOptionsObject>;
-            public gradients: Dictionary<SVGElement>;
+            public globalAnimation: Partial<AnimationOptions>;
+            public gradients: Record<string, SVGElement>;
             public height: number;
             public imgCount: number;
             public isSVG: boolean;
@@ -238,7 +238,7 @@ declare global {
             public setSize(
                 width: number,
                 height: number,
-                animate?: (boolean|Partial<AnimationOptionsObject>)
+                animate?: (boolean|Partial<AnimationOptions>)
             ): void;
             public setStyle(style: CSSObject): void;
             public symbol(
@@ -617,7 +617,7 @@ class SVGRenderer {
      */
     public defs: SVGElement = void 0 as any;
     public forExport?: boolean;
-    public globalAnimation: Partial<AnimationOptionsObject> = void 0 as any;
+    public globalAnimation: Partial<AnimationOptions> = void 0 as any;
     public gradients: Record<string, SVGElement> = void 0 as any;
     public height: number = void 0 as any;
     public imgCount: number = void 0 as any;
@@ -2094,7 +2094,7 @@ class SVGRenderer {
     public setSize(
         width: number,
         height: number,
-        animate?: (boolean|Partial<AnimationOptionsObject>)
+        animate?: (boolean|Partial<AnimationOptions>)
     ): void {
         var renderer = this,
             alignedObjects = renderer.alignedObjects,

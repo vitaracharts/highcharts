@@ -866,7 +866,7 @@ class PackedBubbleSeries extends BubbleSeries implements Highcharts.DragNodesSer
             parentNode = series.parentNode;
         let dataLabels;
 
-        H.TrackerMixin.drawTrackerPoint.call(this);
+        super.drawTracker();
         // Add reference to the point
         if (parentNode) {
             dataLabels = (
@@ -903,7 +903,7 @@ class PackedBubbleSeries extends BubbleSeries implements Highcharts.DragNodesSer
             seriesOptions = series.options,
             useSimulation = seriesOptions.useSimulation,
             smallestSize = Math.min(plotWidth, plotHeight),
-            extremes = {} as Highcharts.Dictionary<number>,
+            extremes = {} as Record<string, number>,
             radii = [] as Array<(number|null)>,
             allDataPoints = chart.allDataPoints,
             minSize: number,

@@ -17,7 +17,7 @@ import type {
     AlignValue,
     VerticalAlignValue
 } from '../Core/Renderer/AlignObject';
-import type AnimationOptionsObject from '../Core/Animation/AnimationOptionsObject';
+import type AnimationOptions from '../Core/Animation/AnimationOptions';
 import type BBoxObject from '../Core/Renderer/BBoxObject';
 import type ColorType from '../Core/Color/ColorType';
 import type {
@@ -125,7 +125,7 @@ declare module '../Core/Series/SeriesOptions' {
 declare global {
     namespace Highcharts {
         interface Axis {
-            ddPoints?: Dictionary<Array<(false|Point)>>;
+            ddPoints?: Record<string, Array<(false|Point)>>;
             oldPos?: number;
             drilldownCategory(x: number, e: MouseEvent): void;
             getDDPoints(x: number): Array<(false|Point)>;
@@ -174,12 +174,12 @@ declare global {
                 CSSObject|DrilldownActiveDataLabelStyleOptions
             );
             allowPointDrilldown?: boolean;
-            animation?: (boolean|Partial<AnimationOptionsObject>);
+            animation?: (boolean|Partial<AnimationOptions>);
             drillUpButton?: DrilldownDrillUpButtonOptions;
             series?: Array<SeriesTypeOptions>;
         }
         interface DrilldownLevelObject {
-            bBox: (BBoxObject|Dictionary<undefined>);
+            bBox: (BBoxObject|Record<string, undefined>);
             color?: ColorType;
             colorIndex?: number;
             levelNumber: number;
@@ -187,7 +187,7 @@ declare global {
             levelSeriesOptions: Array<SeriesOptions>;
             lowerSeries: LineSeries;
             lowerSeriesOptions: SeriesOptions;
-            oldExtremes: Dictionary<(number|undefined)>;
+            oldExtremes: Record<string, (number|undefined)>;
             pointIndex: number;
             pointOptions: (PointOptions|PointShortOptions);
             seriesOptions: SeriesOptions;
@@ -219,7 +219,7 @@ declare global {
             drilldown?: DrilldownOptions;
         }
         interface SVGElement {
-            fadeIn(animation?: (boolean|Partial<AnimationOptionsObject>)): void;
+            fadeIn(animation?: (boolean|Partial<AnimationOptions>)): void;
         }
         interface Tick {
             drillable(): void;
@@ -661,7 +661,7 @@ defaultOptions.drilldown = {
  * The animation options for the element fade.
  */
 SVGRenderer.prototype.Element.prototype.fadeIn = function (
-    animation?: (boolean|Partial<AnimationOptionsObject>)
+    animation?: (boolean|Partial<AnimationOptions>)
 ): void {
     this
         .attr({

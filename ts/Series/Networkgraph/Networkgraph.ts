@@ -18,7 +18,7 @@
  *
  * */
 
-import type AnimationOptionsObject from '../../Core/Animation/AnimationOptionsObject';
+import type AnimationOptions from '../../Core/Animation/AnimationOptions';
 import type Chart from '../../Core/Chart/Chart';
 import type ColorType from '../../Core/Color/ColorType';
 import type {
@@ -65,7 +65,7 @@ var dragNodesMixin = H.dragNodesMixin;
 declare module '../../Core/Series/PointOptions' {
     interface PointStateInactiveOptions
     {
-        animation?: (boolean|Partial<AnimationOptionsObject>);
+        animation?: (boolean|Partial<AnimationOptions>);
     }
 }
 
@@ -78,7 +78,7 @@ declare module '../../Core/Series/SeriesLike' {
 declare module '../../Core/Series/SeriesOptions' {
     interface SeriesStateInactiveOptions
     {
-        animation?: (boolean|Partial<AnimationOptionsObject>);
+        animation?: (boolean|Partial<AnimationOptions>);
         linkOpacity?: number;
     }
 }
@@ -91,7 +91,7 @@ declare global {
     namespace Highcharts {
         interface NetworkgraphChart extends DragNodesChart {
             graphLayoutsLookup: Array<NetworkgraphLayout>;
-            graphLayoutsStorage: Dictionary<NetworkgraphLayout>;
+            graphLayoutsStorage: Record<string, NetworkgraphLayout>;
         }
         interface NetworkgraphDataLabelsFormatterCallbackFunction {
             (this: (
@@ -156,7 +156,7 @@ declare global {
             public getDegree(): number;
             public getLinkAttributes(): SVGAttributes;
             public getLinkPath(): SVGPath;
-            public getMass(): Dictionary<number>;
+            public getMass(): Record<string, number>;
             public getPointsCollection(): Array<NetworkgraphPoint>;
             public init(
                 series: NetworkgraphSeries,
@@ -659,7 +659,6 @@ interface NetworkgraphSeries {
     data: Array<NetworkgraphPoint>;
     destroy(): void;
     directTouch: boolean;
-    drawTracker: Highcharts.TrackerMixin['drawTrackerPoint'];
     forces: Array<string>;
     hasDraggableNodes: boolean;
     isCartesian: boolean;
@@ -710,7 +709,7 @@ extend(NetworkgraphSeries.prototype, {
     noSharedTooltip: true,
     pointArrayMap: ['from', 'to'],
     trackerGroups: ['group', 'markerGroup', 'dataLabelsGroup'],
-    drawTracker: H.TrackerMixin.drawTrackerPoint,
+    drawTracker: seriesTypes.column.prototype.drawTracker,
     // Animation is run in `series.simulation`.
     animate: null as any,
     buildKDTree: H.noop as any,
@@ -1297,7 +1296,7 @@ extend(NetworkgraphPoint.prototype, {
      */
     getMass: function (
         this: Highcharts.NetworkgraphPoint
-    ): Highcharts.Dictionary<number> {
+    ): Record<string, number> {
         var m1 = this.fromNode.mass,
             m2 = this.toNode.mass,
             sum = m1 + m2;

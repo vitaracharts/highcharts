@@ -262,7 +262,7 @@ var PieSeries = /** @class */ (function (_super) {
                 graphic.attr({
                     visibility: point.visible ? 'inherit' : 'hidden'
                 });
-                graphic.addClass(point.getClassName());
+                graphic.addClass(point.getClassName(), true);
             }
             else if (graphic) {
                 point.graphic = graphic.destroy();
@@ -958,6 +958,7 @@ extend(PieSeries.prototype, {
     directTouch: true,
     drawGraph: null,
     drawLegendSymbol: LegendSymbolMixin.drawRectangle,
+    drawTracker: ColumnSeries.prototype.drawTracker,
     getCenter: CenteredSeriesMixin.getCenter,
     getSymbol: noop,
     isCartesian: false,

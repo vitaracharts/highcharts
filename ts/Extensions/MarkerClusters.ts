@@ -20,7 +20,7 @@
  *
  * */
 
-import type AnimationOptionsObject from '../Core/Animation/AnimationOptionsObject';
+import type AnimationOptions from '../Core/Animation/AnimationOptions';
 import type DataLabelOptions from '../Core/Series/DataLabelOptions';
 import type {
     PointClickEvent,
@@ -186,7 +186,7 @@ declare global {
             allowOverlap?: boolean;
             minimumClusterSize?: number;
             drillToCluster?: boolean;
-            animation?: (boolean|Partial<AnimationOptionsObject>);
+            animation?: (boolean|Partial<AnimationOptions>);
             layoutAlgorithm: MarkerClusterLayoutAlgorithmOptions;
             marker?: PointMarkerOptions;
             dataLabels?: DataLabelOptions;
@@ -220,13 +220,13 @@ declare global {
                 processedYData: Array<number>,
                 visibleDataIndexes: Array<number>,
                 options: MarkerClusterLayoutAlgorithmOptions
-            ): Dictionary<MarkerClusterSplitDataArray>;
+            ): Record<string, MarkerClusterSplitDataArray>;
         }
         interface MarkerClusterPreventCollisionObject {
             x: number;
             y: number;
             key: string;
-            groupedData: Dictionary<MarkerClusterSplitDataArray>;
+            groupedData: Record<string, MarkerClusterSplitDataArray>;
             gridSize: number;
             defaultRadius: number;
             clusterRadius: number;
@@ -261,8 +261,8 @@ declare global {
             point: (Point|undefined);
         }
         interface MarkerClusterPointsStateObject {
-            oldState?: Dictionary<MarkerClusterPointsState>;
-            newState: Dictionary<MarkerClusterPointsState>;
+            oldState?: Record<string, MarkerClusterPointsState>;
+            newState: Record<string, MarkerClusterPointsState>;
         }
         interface MarkerClusterInfoObject {
             clusters: Array<ClusterAndNoiseObject>;
@@ -683,7 +683,7 @@ function getDataState(
 function fadeInElement(
     elem: SVGElement,
     opacity?: number,
-    animation?: (boolean|Partial<AnimationOptionsObject>)
+    animation?: (boolean|Partial<AnimationOptions>)
 ): void {
     elem
         .attr({
@@ -697,7 +697,7 @@ function fadeInElement(
 function fadeInStatePoint(
     stateObj: Highcharts.MarkerClusterPointsState,
     opacity?: number,
-    animation?: (boolean|Partial<AnimationOptionsObject>),
+    animation?: (boolean|Partial<AnimationOptions>),
     fadeinGraphic?: boolean,
     fadeinDataLabel?: boolean
 ): void {
@@ -732,7 +732,7 @@ function hideStatePoint(
 
 function destroyOldPoints(
     oldState:
-    (Highcharts.Dictionary<Highcharts.MarkerClusterPointsState>|undefined)
+    (Record<string, Highcharts.MarkerClusterPointsState>|undefined)
 ): void {
     if (oldState) {
         objectEach(oldState, function (state): void {
@@ -746,7 +746,7 @@ function destroyOldPoints(
 function fadeInNewPointAndDestoryOld(
     newPointObj: Highcharts.MarkerClusterPointsState,
     oldPoints: Array<Highcharts.MarkerClusterPointsState>,
-    animation: (boolean|Partial<AnimationOptionsObject>),
+    animation: (boolean|Partial<AnimationOptions>),
     opacity: number
 ): void {
     // Fade in new point.
@@ -1410,7 +1410,7 @@ Scatter.prototype.markerClusterAlgorithms = {
             pointX = 0,
             pointY = 0,
             tempPos,
-            pointClusterDistance: Array<Highcharts.Dictionary<number>> = [],
+            pointClusterDistance: Array<Record<string, number>> = [],
             groupedData, key, i, j;
 
         options.processedGridSize = options.processedDistance;

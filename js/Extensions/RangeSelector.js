@@ -1082,9 +1082,11 @@ var RangeSelector = /** @class */ (function () {
         // to the right size when focused.
         var input = createElement('input', {
             name: name,
-            className: 'highcharts-range-selector',
-            type: preferredInputType(options.inputDateFormat || '%b %e, %Y')
+            className: 'highcharts-range-selector'
         }, void 0, div);
+        // #14788: Setting input.type to an unsupported type throws in IE, so
+        // we need to use setAttribute instead
+        input.setAttribute('type', preferredInputType(options.inputDateFormat || '%b %e, %Y'));
         if (!chart.styledMode) {
             // Styles
             label.css(merge(chartStyle, options.labelStyle));

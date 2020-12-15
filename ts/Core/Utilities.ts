@@ -26,6 +26,11 @@ const {
     win
 } = H;
 
+/* *
+ *
+ * Declarations
+ *
+ * */
 type NonArray<T> = T extends Array<unknown> ? never : T;
 type NonFunction<T> = T extends Function ? never : T;
 type NullType = (null|undefined);
@@ -50,20 +55,13 @@ declare global {
         interface Class<T = any> extends Function {
             new(...args: Array<any>): T;
         }
-        /**
-         * @deprecated
-         * Use `Record<string, T>` instead.
-         */
-        interface Dictionary<T> extends Record<string, T> {
-            [key: string]: T;
-        }
         interface ErrorMessageEventObject {
             code: number;
             message: string;
-            params: Dictionary<string>;
+            params: Record<string, string>;
         }
         interface EventCallbackFunction<T> {
-            (this: T, eventArguments: (Dictionary<any>|Event)): (boolean|void);
+            (this: T, eventArguments: (Record<string, any>|Event)): (boolean|void);
         }
         interface EventOptionsObject {
             order?: number;
@@ -146,7 +144,7 @@ declare global {
             code: (number|string),
             stop?: boolean,
             chart?: Chart,
-            param?: Dictionary<string>
+            param?: Record<string, string>
         ): void;
         function extend<T extends object>(a: (T|undefined), b: object): T;
         function extendClass<T, TReturn = T>(
@@ -157,7 +155,7 @@ declare global {
         function fireEvent<T>(
             el: T,
             type: string,
-            eventArguments?: (Dictionary<any>|Event),
+            eventArguments?: (Record<string, any>|Event),
             defaultFunction?: (EventCallbackFunction<T>|Function)
         ): void;
         function format(str: string, ctx: any, chart?: Chart): string;
@@ -282,7 +280,7 @@ declare global {
             func: WrapProceedFunction
         ): void;
         let garbageBin: (globalThis.HTMLElement|undefined);
-        let timeUnits: Dictionary<number>;
+        let timeUnits: Record<string, number>;
     }
 }
 
@@ -839,6 +837,47 @@ H.merge = merge;
  */
 function clamp(value: number, min: number, max: number): number {
     return value > min ? value < max ? value : max : min;
+}
+
+// eslint-disable-next-line valid-jsdoc
+/**
+ * Remove settings that have not changed, to avoid unnecessary rendering or
+ * computing (#9197).
+ * @private
+ */
+function cleanRecursively<TNew extends Record<string, any>, TOld extends Record<string, any>>(
+    newer: TNew,
+    older: TOld
+): TNew & TOld {
+    var result: Record<string, any> = {};
+
+    objectEach(newer, function (_val: unknown, key: (number|string)): void {
+        var ob;
+
+        // Dive into objects (except DOM nodes)
+        if (
+            isObject(newer[key], true) &&
+            !newer.nodeType && // #10044
+            older[key]
+        ) {
+            ob = cleanRecursively(
+                newer[key],
+                older[key]
+            );
+            if (Object.keys(ob).length) {
+                result[key] = ob;
+            }
+
+        // Arrays, primitives and DOM nodes are copied directly
+        } else if (
+            isObject(newer[key]) ||
+            newer[key] !== older[key]
+        ) {
+            result[key] = newer[key];
+        }
+    });
+
+    return result;
 }
 
 /**
@@ -1779,7 +1818,7 @@ const correctFloat = H.correctFloat = function correctFloat(num: number, prec?: 
  * @ignore
  */
 
-const timeUnits: Highcharts.Dictionary<number> = H.timeUnits = {
+const timeUnits: Record<string, number> = H.timeUnits = {
     millisecond: 1,
     second: 1000,
     minute: 60000,
@@ -2332,7 +2371,7 @@ const addEvent = H.addEvent = function<T> (
     if (!Object.hasOwnProperty.call(owner, 'hcEvents')) {
         owner.hcEvents = {};
     }
-    const events: Highcharts.Dictionary<Array<any>> = owner.hcEvents;
+    const events: Record<string, Array<any>> = owner.hcEvents;
 
 
     // Allow click events added to points, otherwise they will be prevented by
@@ -2437,7 +2476,7 @@ const removeEvent = H.removeEvent = function removeEvent<T>(
      * @return {void}
      */
     function removeAllEvents(eventCollection: any): void {
-        var types: Highcharts.Dictionary<boolean>,
+        var types: Record<string, boolean>,
             len;
 
         if (!(el as any).nodeName) {
@@ -2514,7 +2553,7 @@ const removeEvent = H.removeEvent = function removeEvent<T>(
 const fireEvent = H.fireEvent = function<T> (
     el: T,
     type: string,
-    eventArguments?: (Highcharts.Dictionary<any>|Event),
+    eventArguments?: (Record<string, any>|Event),
     defaultFunction?: (Highcharts.EventCallbackFunction<T>|Function)
 ): void {
     /* eslint-enable valid-jsdoc */
@@ -2777,6 +2816,7 @@ const utilitiesModule = {
     arrayMin,
     attr,
     clamp,
+    cleanRecursively,
     clearTimeout: internalClearTimeout,
     correctFloat,
     createElement,
